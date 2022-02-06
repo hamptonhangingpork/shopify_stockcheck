@@ -12,23 +12,20 @@ def base_url(url, with_path=False):
 
 	
 def product_search_atc(session):
-    productFound = False
+	print("Getting Product...")
+	productDict = {}
+	link = product_url + '.js'
+	r = session.get(link, verify=False)
+	bs = soup(r.text, "html.parser")
+	site_json = json.loads(bs.text)
+	
+	variantDict = {}
 
-    while (productFound == False):
-        print("Getting Product...")
-        productDict = {}
-        link = product_url + '.js'
-        r = session.get(link, verify=False)
-        bs = soup(r.text, "html.parser")
-        site_json = json.loads(bs.text)
-		
-        variantDict = {}
-
-        if not variantDict:
-            for _entry in site_json['variants']:
-                variantID = _entry['id']
-                variantDict.update({_entry['name']: variantID})
-        return variantDict
+	if not variantDict:
+		for _entry in site_json['variants']:
+			variantID = _entry['id']
+			variantDict.update({_entry['name']: variantID})
+	return variantDict
 				
 
 def add_to_cart(session):
@@ -41,15 +38,7 @@ def add_to_cart(session):
     for addToCartVariant in addToCartVariantlist:
         link = url_base + "/cart/add.js?quantity=5000&id=" + addToCartVariant
         print(f"Adding - {addToCartVariant}")
-        response = session.get(link, verify=False)
-        addToCartData = json.loads(response.text)
-        try:
-            checkAddToCart = addToCartData["quantity"]
-            if (checkAddToCart < 1):
-                print("Not in stock!")
-        except KeyError:
-            print(Fore.RED + "Attempting Add to Cart")
-			
+        response = session.get(link, verify=False)	
     return response
             
 			
